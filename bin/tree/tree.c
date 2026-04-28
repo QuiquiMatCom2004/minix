@@ -3,20 +3,19 @@
 #include <dirent.h>
 #include <string.h>
 #include <sys/stat.h>
-
 #define IDENT  "|  "
 #define BRANCH "|--"
-
 #define MAXPATH 4096
 #define MAXPREFIX 2048
-
 static int show_hidden = 0;
 static int max_depth = -1;
 static int dirs_only= 0;
 static int total_dirs= 0;
 static int total_files=0;
-
-void print_tree(const char* path,  int depth,char* prefix)
+/* --- PROTOTIPOS (soluciona error de función sin prototipo previo) --- */
+void print_tree(const char* path, int depth, const char* prefix);
+static void usage(const char *prog) __attribute__((noreturn));  // Atributo noreturn
+void print_tree(const char* path, int depth, const char* prefix) 
 {
     //Crear las estructuras necesarias
     DIR *dir;  
@@ -24,7 +23,7 @@ void print_tree(const char* path,  int depth,char* prefix)
     struct stat st;
     char full_path[MAXPATH];
     char new_prefix[MAXPREFIX];
-    //Si se supero lo profundida maxima retorna
+    //Si se supero lo profundidad maxima retorna
     if(max_depth >= 0 && depth > max_depth)return;
     //Abre el directorio
     dir = opendir(path);
@@ -38,13 +37,11 @@ void print_tree(const char* path,  int depth,char* prefix)
         if(!show_hidden && entry->d_name[0] == '.')continue;
         //Construir todo el camino hasta el directorio/archivo
         snprintf(full_path,MAXPATH, "%s/%s", path, entry->d_name);
-
         //Llamar lstat sobre la ruta
         if (lstat(full_path, &st) < 0) { perror(full_path); continue; }
         //Validar la muestra de archivos
         if(dirs_only && !S_ISDIR(st.st_mode))continue;
-
-        //Imprimir el nombre con la identacion que lleva
+        //Imprimir el nombre con la indentación que lleva
         printf("%s%s%s", prefix, BRANCH,entry->d_name);
         //Si es un directorio imprimir / y sumar 1 al total de directorios
         if(S_ISDIR(st.st_mode)){
@@ -64,7 +61,8 @@ void print_tree(const char* path,  int depth,char* prefix)
     //Cierra el directorio
     closedir(dir);
 }
-
+/* --- Atributo noreturn (soluciona error de función que no regresa) --- */
+static void usage(const char *prog) __attribute__((noreturn));
 static void usage(const char *prog)
 {
     fprintf(stderr,
@@ -75,17 +73,15 @@ static void usage(const char *prog)
         prog);
     exit(1);
 }
-
 int main(int argc, char *argv[])
 {
     //inicializar variables
-    char *root = ".";
-    int i;
+    const char *root = ".";  // Cambiado a const char* (soluciona error de descartar calificadores)
     int flag = 0;
     int roots[argc];
     int numOfRoots = 0;
     //Decodificar el comando argumento a argumento
-    for (i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {  // i declarado dentro del for (soluciona shadowing)
         if(strcmp(argv[i], "-a") == 0) { show_hidden = 1; } //habilitar mediante flag archivos ocultos
         else if (strcmp(argv[i], "-d") == 0) { dirs_only   = 1; } //habilitar flag solo directorios
         else if (strcmp(argv[i], "-L") == 0) {//habilitar flag de maxima profundidad
@@ -99,12 +95,12 @@ int main(int argc, char *argv[])
         else { fprintf(stderr, "tree: unknown option '%s'\n", argv[i]); usage(argv[0]); }
     }
     if(!flag)
-        print_tree(root, 1,""); //Si no se entro al for
+        print_tree(root, 1,""); // Soluciona error de pasar "" a char* (ahora prefix es const char*)
     else{
-        for(int i = 0; i < numOfRoots;i++){
-            if(i >= 1) //Si har mas de una ruta separalas
+        for(int i = 0; i < numOfRoots;i++){  // i declarado dentro del for (no shadowing ahora)
+            if(i >= 1) //Si hay mas de una ruta separalas
                 printf("\n============================================================\n");
-            root = argv[roots[i]]; //construye la ruta
+            root = argv[roots[i]]; //construye la ruta (válido: char* a const char*)
             print_tree(root,1,""); // aplicale el comando 
         }
     }
