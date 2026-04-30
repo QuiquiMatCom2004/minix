@@ -135,6 +135,8 @@ int do_stop_scheduling(message *m_ptr)
 	cpu_proc[rmp->cpu]--;
 #endif
 	rmp->flags = 0; /*&= ~IN_USE;*/
+	rmp->quantum_counter=0;
+	rmp->last_window_quanta = 0;
 
 	return OK;
 }
