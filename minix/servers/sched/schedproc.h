@@ -33,7 +33,12 @@ EXTERN struct schedproc {
 	bitchunk_t cpu_mask[BITMAP_CHUNKS(CONFIG_MAX_CPUS)]; /* what CPUs is the
 								process allowed
 								to run on */
+	unsigned quantum_counter;
+	unsigned last_window_quanta;
 } schedproc[NR_PROCS];
 
 /* Flag values */
 #define IN_USE		0x00001	/* set when 'schedproc' slot in use */
+
+#define CPU_PENALTY_WINDOW_QUANTA   3
+#define CPU_PENALTY_MAX_LEVELS      3  
