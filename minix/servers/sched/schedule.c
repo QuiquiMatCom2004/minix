@@ -226,6 +226,8 @@ int do_start_scheduling(message *m_ptr)
 		return rv;
 	}
 	rmp->flags = IN_USE;
+	rmp->quantum_counter = 0;
+	rmp->last_window_quanta = 0;
 
 	/* Schedule the process, giving it some quantum */
 	pick_cpu(rmp);
