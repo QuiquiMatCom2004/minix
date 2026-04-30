@@ -362,10 +362,13 @@ void balance_queues(void)
 
 	for (proc_nr=0, rmp=schedproc; proc_nr < NR_PROCS; proc_nr++, rmp++) {
 		if (rmp->flags & IN_USE) {
-			if (rmp->priority > rmp->max_priority) {
+			if (rmp->last_window_quanta == 0  && rmp->priority > rmp->max_priority) {
 				rmp->priority -= 1; /* increase priority */
 				schedule_process_local(rmp);
 			}
+
+			rmp->last_window_quanta = rmp->quantum_counter;
+			rmp->quantum_counter = 0;
 		}
 	}
 
