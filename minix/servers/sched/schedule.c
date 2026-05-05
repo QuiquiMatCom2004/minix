@@ -13,6 +13,10 @@
 #include <minix/com.h>
 #include <machine/archtypes.h>
 
+#include <stdarg.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 static unsigned balance_timeout;
 
 #define BALANCE_TIMEOUT	5 /* how often to balance queues in seconds */
@@ -148,7 +152,7 @@ int do_start_scheduling(message *m_ptr)
 {
 	register struct schedproc *rmp;
 	int rv, proc_nr_n, parent_nr_n;
-	
+
 	/* we can handle two kinds of messages here */
 	assert(m_ptr->m_type == SCHEDULING_START || 
 		m_ptr->m_type == SCHEDULING_INHERIT);
